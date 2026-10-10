@@ -1,0 +1,67 @@
+# Contoh konfigurasi Nginx untuk E-OSIS (sesuaikan domain & path).
+# - Frontend (client/dist) disajikan langsung oleh Nginx.
+# - /api dan /uploads diteruskan ke Node.js yang hanya mendengarkan 127.0.0.1:4000.
+# - server/.env: NODE_ENV=production, COOKIE_SECURE=true, TRUST_PROXY=1,
+#   CORS_ORIGINS=https://osis.sekolah.sch.id, HOST=127.0.0.1, SERVE_CLIENT=false
+
+server {
+    listen 80;
+    server_name osis.sekolah.sch.id;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name osis.sekolah.sch.id;
+
+    ssl_certificate     /etc/letsencrypt/live/osis.sekolah.sch.id/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/osis.sekolah.sch.id/privkey.pem;
+
+    root /var/www/e-osis/client/dist;
+    index index.html;
+
+    client_max_body_size 3m;   # unggah foto kandidat (maks. 2 MB) + overhead multipart
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+
+    # Aset hasil build (nama file mengandung hash) boleh di-cache lama.
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 30s;
+    }
+
+    # Opsional: bilik suara hanya dapat diakses dari jaringan sekolah (ganti dengan IP publik sekolah).
+    # location ~ ^/api/elections/[^/]+/vote$ {
+    #     allow 203.0.113.0/24;
+    #     deny all;
+    #     proxy_pass http://127.0.0.1:4000;
+    #     proxy_set_header Host $host;
+    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #     proxy_set_header X-Forwarded-Proto $scheme;
+    # }
+
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:4000;
+        proxy_set_header Host $host;
+    }
+
+    # SPA: semua route frontend (mis. /pilih, /admin/pemilihan) diarahkan ke index.html.
+    location / {
+        try_files $uri /index.html;
+    }
+}

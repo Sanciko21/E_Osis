@@ -1,0 +1,360 @@
+/* Isi halaman hasil sedikit menumpuk ke hero di atasnya. */
+.results-page__body {
+  position: relative;
+  margin-top: -40px;
+  padding-bottom: 64px;
+}
+
+.results-layout,
+.results-charts,
+.dashboard {
+  display: grid;
+  gap: 20px;
+}
+
+.is-refreshing {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+/* --------------------------------------------------------- Stat tile */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (min-width: 1024px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .stat-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.stat {
+  --stat-accent: var(--blue-600);
+  --stat-soft: var(--blue-50);
+  --stat-ink: var(--blue-700);
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Aksen warna kartu statistik (dekoratif; label selalu berupa teks). */
+.stat--teal {
+  --stat-accent: var(--teal-500);
+  --stat-soft: var(--teal-50);
+  --stat-ink: var(--teal-700);
+}
+
+.stat--gold {
+  --stat-accent: var(--amber-400);
+  --stat-soft: var(--amber-50);
+  --stat-ink: var(--warning-700);
+}
+
+.stat--coral {
+  --stat-accent: var(--coral-500);
+  --stat-soft: var(--coral-50);
+  --stat-ink: var(--coral-700);
+}
+
+.stat::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--stat-accent);
+  content: '';
+}
+
+.stat__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--stat-soft);
+  color: var(--stat-ink);
+}
+
+.stat__label {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.stat__value {
+  color: var(--navy-900);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.stat__suffix {
+  margin-left: 4px;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.stat__note {
+  color: var(--text-subtle);
+  font-size: 0.82rem;
+}
+
+/* -------------------------------------------------------------- Meter */
+.meter {
+  display: grid;
+  gap: 10px;
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.meter__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.meter__label {
+  font-weight: 700;
+}
+
+.meter__value {
+  color: var(--navy-900);
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.meter__track {
+  overflow: hidden;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--meter-track);
+}
+
+.meter__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--meter-fill), var(--blue-700));
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.meter__note {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.meter--unknown {
+  background: var(--bg);
+}
+
+/* ------------------------------------------------------------- Grafik */
+.chart-grid {
+  display: grid;
+  gap: 20px;
+}
+
+@media (min-width: 1024px) {
+  .chart-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Kartu batang mengisi tinggi baris agar sejajar dengan kartu donat. */
+.chart-card--bars {
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-canvas--fill {
+  flex: 1 1 auto;
+}
+
+/* Donat + legenda berdampingan bila kartunya cukup lebar (container query). */
+.chart-card--share {
+  container-type: inline-size;
+}
+
+.share-layout {
+  display: grid;
+  align-items: center;
+  gap: 18px;
+}
+
+@container (min-width: 440px) {
+  .share-layout {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+
+  .share-layout .chart-canvas--doughnut {
+    height: 200px;
+  }
+}
+
+.chart-card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+  margin: 0;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.chart-card__title {
+  color: var(--navy-900);
+  font-size: 1.02rem;
+  font-weight: 800;
+}
+
+.chart-canvas {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.chart-canvas canvas {
+  max-width: 100%;
+}
+
+.chart-canvas--doughnut {
+  height: 240px;
+}
+
+.doughnut-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.doughnut-center__value {
+  color: var(--navy-900);
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.doughnut-center__label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.legend {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.925rem;
+}
+
+.legend__name {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-secondary);
+}
+
+.legend__value {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------- Pemenang (publik) */
+.winner-card {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid rgb(255 201 40 / 0.55);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(360px 200px at 100% 0%, rgb(255 201 40 / 0.28), transparent 70%),
+    linear-gradient(135deg, var(--amber-50), #fff 70%);
+  box-shadow: var(--shadow);
+}
+
+.winner-card .eyebrow {
+  color: var(--warning-900);
+}
+
+.winner-card__list {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .winner-card__list {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+.winner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.winner__number {
+  color: var(--blue-700);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.winner__names {
+  color: var(--navy-900);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.winner__votes {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.winner-card__note {
+  color: var(--warning-900);
+  font-size: 0.9rem;
+}

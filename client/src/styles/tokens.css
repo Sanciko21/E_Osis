@@ -1,0 +1,90 @@
+/*
+ * Token desain E-OSIS — "modern school election".
+ * Navy = identitas utama; royal blue & kuning = aksen utama; mint, coral, teal, lavender = aksen
+ * pendukung. Warna aksen murni (< 3:1 di atas putih) hanya untuk latar/dekorasi; teks & ikon memakai
+ * varian -700 yang sudah dicek kontrasnya (WCAG AA ≥ 4.5:1).
+ */
+:root {
+  color-scheme: light;
+  --font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Palet brand */
+  --navy-950: #0b1336;
+  --navy-900: #101b49; /* Deep Navy */
+  --navy-800: #1a2a6c;
+  --blue-700: #1c46bf;
+  --blue-600: #2457e6; /* Royal Blue */
+  --blue-100: #dce5fd;
+  --blue-50: #eef3ff;
+  --amber-400: #ffc928; /* Golden Yellow */
+  --amber-300: #ffd95c;
+  --amber-100: #fff1c2;
+  --amber-50: #fff9e6;
+  --mint-500: #35c98a; /* Mint Green */
+  --mint-700: #177a50;
+  --mint-50: #e3f7ee;
+  --coral-500: #ff786b; /* Coral */
+  --coral-700: #c2412f;
+  --coral-50: #ffeeeb;
+  --teal-500: #18a999; /* Teal */
+  --teal-700: #0b7466;
+  --teal-50: #e1f5f2;
+  --lavender-100: #eae7ff; /* Lavender */
+  --violet-700: #5546c8;
+
+  /* Permukaan & teks */
+  --bg: #f5f7fc; /* Soft Gray */
+  --surface: #ffffff;
+  --surface-muted: #eef2f9;
+  --border: #e3e8f4;
+  --border-strong: #cbd3e6;
+  --text: #111936;
+  --text-secondary: #34405f;
+  --text-muted: #4f5b78;
+  --text-subtle: #5e6a87;
+  --text-on-dark: #ffffff;
+  --text-on-dark-muted: #c9d2ee;
+
+  /* Status */
+  --success-900: #0f5537;
+  --success-700: #177a50;
+  --success-50: #e3f7ee;
+  --warning-900: #6b3700;
+  --warning-700: #9a4f00;
+  --warning-50: #fff3d6;
+  --danger-800: #8f2416;
+  --danger-700: #b8321f;
+  --danger-50: #ffeeeb;
+  --info-900: #142f86;
+  --info-50: #eef3ff;
+
+  /* Meter partisipasi: isi & lintasan dari ramp royal blue yang sama. */
+  --meter-fill: #2457e6;
+  --meter-track: #dce5fd;
+
+  --focus-ring: #2457e6;
+  --focus-ring-on-dark: #ffd95c;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* Bayangan lembut ala shadcn (warna navy, bukan hitam). */
+  --shadow-sm: 0 1px 2px rgb(16 27 73 / 0.06);
+  --shadow: 0 1px 3px rgb(16 27 73 / 0.08), 0 12px 28px -16px rgb(16 27 73 / 0.22);
+  --shadow-lg: 0 30px 60px -30px rgb(16 27 73 / 0.45);
+  --shadow-glow: 0 18px 40px -18px rgb(36 87 230 / 0.55);
+
+  --container: 1180px;
+  --container-narrow: 820px;
+  --nav-height: 72px;
+  --gutter: 16px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+  }
+}

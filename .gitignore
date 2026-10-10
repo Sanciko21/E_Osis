@@ -1,0 +1,28 @@
+# Dependensi
+node_modules/
+
+# Rahasia & konfigurasi lokal — JANGAN di-commit
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Build & laporan
+client/dist/
+coverage/
+client/test-results/
+client/playwright-report/
+client/blob-report/
+client/playwright/.cache/
+
+# File unggahan (foto kandidat) — data runtime, bukan kode
+server/uploads/
+
+# Log & sistem
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
