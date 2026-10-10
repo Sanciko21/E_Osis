@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # E-OSIS — Sistem Pemilihan Ketua & Wakil Ketua OSIS
 
 E-OSIS adalah aplikasi web full-stack untuk pemilihan Ketua dan Wakil Ketua OSIS tingkat SMP.
@@ -558,3 +559,7 @@ endpoint pencarian pilihan berdasarkan NISN. Kebijakan retensi yang disarankan a
 | npm: `Cannot read properties of null (reading 'edgesOut')` | Bug npm saat Vite 8 + Vitest 4; proyek mengunci Vite 7 lewat `overrides` di `package.json`. Jalankan ulang `npm install` |
 | Login berhasil tetapi langsung keluar di production | Pastikan diakses lewat HTTPS dan `COOKIE_SECURE=true` (cookie `__Host-` wajib Secure) |
 | Siswa satu lab terkena `429` | Naikkan `VOTE_RATE_LIMIT_MAX` |
+=======
+# E_Osis
+Web Pemilihan Ketua Dan Wakil Ketua Osis 
+>>>>>>> 068c9140f1a345219002ad52ff56c1154248d52a
