@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # E-OSIS — Sistem Pemilihan Ketua & Wakil Ketua OSIS
 
 E-OSIS adalah aplikasi web full-stack untuk pemilihan Ketua dan Wakil Ketua OSIS tingkat SMP.
@@ -45,7 +44,7 @@ mengelola jadwal & pasangan calon dari dashboard, dan hasil dihitung langsung da
 **Halaman publik (siswa)**
 - **Beranda** — hero dengan animasi pembuka GSAP, status & jadwal pemilihan dengan hitung mundur
   (dikoreksi ke jam server), tahapan pemilihan, cara memilih, kartu pasangan calon (visi & misi
-  lengkap dalam dialog), FAQ, footer. Animasi scroll memakai AOS.
+  lengkap dalam dialog), FAQ accordion, footer. Animasi scroll memakai AOS dan Motion for React.
 - **Kartu pasangan calon** — foto paslon di depan logo sekolah; saat disorot mouse kartu melayang
   dan miring 3D mengikuti kursor ("flying card"). Efek gerak otomatis mati di layar sentuh dan bila
   pengguna memilih animasi dikurangi. Paling bagus dengan foto **PNG berlatar transparan**.
@@ -71,7 +70,9 @@ mengelola jadwal & pasangan calon dari dashboard, dan hasil dihitung langsung da
 
 **Integrasi library wajib**: SweetAlert2 (`src/utils/alerts.js`), Chart.js + react-chartjs-2
 (`src/components/charts/`), AOS (`src/lib/aos.js`), GSAP (`src/components/landing/Hero.jsx`,
-`src/components/ui/StatCard.jsx`). Semua animasi menghormati `prefers-reduced-motion`.
+`src/components/ui/StatCard.jsx`). Pendukung tampilan: Motion for React (`src/lib/motionPresets.js`;
+stagger kartu, accordion FAQ, dialog, ilustrasi melayang) dan ikon Lucide (`src/components/ui/Icon.jsx`).
+Semua animasi menghormati `prefers-reduced-motion`.
 
 ## 2. Arsitektur & struktur proyek
 
@@ -96,7 +97,7 @@ PostgreSQL 14+ / Supabase, skema "eosis"  ──  UNIQUE · FK komposit · CHECK
 │   │   ├── context/            AuthContext (sesi admin)
 │   │   ├── services/           apiClient (timeout, CSRF, error seragam) + modul API
 │   │   ├── utils/              alerts (SweetAlert2), chartData, format, nisn, motion
-│   │   ├── lib/aos.js          Inisialisasi AOS (singleton)
+│   │   ├── lib/                aos.js (inisialisasi AOS, singleton), motionPresets.js (varian Motion)
 │   │   ├── styles/             Token desain & CSS per area
 │   │   └── test/               Setup & fixture pengujian
 │   └── e2e/                    Tes Playwright (responsif & alur voting)
@@ -128,13 +129,14 @@ Satu proyek Supabase sudah cukup: aplikasi memakai skema `eosis` di database `po
 tes otomatis memakai skema `eosis_test` (boleh di proyek yang sama, atau di PostgreSQL lokal).
 
 Versi library utama: React 19.3, React Router 7.18, Vite 7.3, Express 5.2, pg 8.23, zod 4.6,
-argon2 0.45, SweetAlert2 11.26, Chart.js 4.5 + react-chartjs-2 5.3, AOS 2.3.4, GSAP 3.15,
+argon2 0.45, SweetAlert2 11.26, Chart.js 4.5 + react-chartjs-2 5.3, AOS 2.3.4, GSAP 3.15, Motion 14.1,
+lucide-react 1.54,
 Vitest 4.1, Playwright 1.63.
 
 ## 4. Instalasi
 
 ```bash
-git clone <repo> e-osis && cd e-osis
+git clone https://github.com/Sanciko21/E_Osis.git e-osis && cd e-osis
 npm run install:all        # menginstal root, server/, dan client/ (beserta lockfile masing-masing)
 ```
 
@@ -559,7 +561,3 @@ endpoint pencarian pilihan berdasarkan NISN. Kebijakan retensi yang disarankan a
 | npm: `Cannot read properties of null (reading 'edgesOut')` | Bug npm saat Vite 8 + Vitest 4; proyek mengunci Vite 7 lewat `overrides` di `package.json`. Jalankan ulang `npm install` |
 | Login berhasil tetapi langsung keluar di production | Pastikan diakses lewat HTTPS dan `COOKIE_SECURE=true` (cookie `__Host-` wajib Secure) |
 | Siswa satu lab terkena `429` | Naikkan `VOTE_RATE_LIMIT_MAX` |
-=======
-# E_Osis
-Web Pemilihan Ketua Dan Wakil Ketua Osis 
->>>>>>> 068c9140f1a345219002ad52ff56c1154248d52a
