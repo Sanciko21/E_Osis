@@ -522,6 +522,12 @@ endpoint pencarian pilihan berdasarkan NISN. Kebijakan retensi yang disarankan a
 
 ## 13. Deployment yang aman
 
+**Vercel + Supabase (tanpa server sendiri):** frontend di Vercel, API Express yang sama dijalankan
+sebagai Supabase Edge Function, database & foto di Supabase. Panduan langkah demi langkah:
+[`docs/DEPLOY-SUPABASE-VERCEL.md`](docs/DEPLOY-SUPABASE-VERCEL.md).
+
+**Server sendiri (VPS/sekolah):**
+
 1. **HTTPS wajib.** Pasang di belakang Nginx/Caddy dengan sertifikat TLS (mis. Let's Encrypt).
    Contoh konfigurasi: [`docs/deploy/nginx.conf.example`](docs/deploy/nginx.conf.example).
 2. `server/.env` production: `NODE_ENV=production`, `COOKIE_SECURE=true`, `TRUST_PROXY=1`,

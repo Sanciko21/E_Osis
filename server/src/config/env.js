@@ -10,6 +10,8 @@ export const SERVER_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.u
  * sistem/hosting selalu lebih diutamakan daripada isi file.
  */
 export function loadEnvFile() {
+  // Supabase Edge Functions (Deno): tidak ada file .env; nilai datang dari "secrets".
+  if (typeof process.loadEnvFile !== 'function') return;
   const fileName = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
   try {
     process.loadEnvFile(path.join(SERVER_ROOT, fileName));
@@ -73,6 +75,18 @@ const EnvSchema = z.object({
 
   UPLOAD_DIR: optional(z.string().default('uploads')),
   UPLOAD_MAX_MB: integer(1, 10, 2),
+  // local = folder UPLOAD_DIR (server Node.js biasa); supabase = Supabase Storage (wajib di Edge Functions).
+  PHOTO_STORAGE: optional(z.enum(['local', 'supabase'], { error: 'PHOTO_STORAGE harus local atau supabase.' }).default('local')),
+  PHOTO_BUCKET: optional(
+    z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9_-]{1,62}$/, 'PHOTO_BUCKET hanya boleh huruf kecil, angka, "-" dan "_".')
+      .default('candidate-photos'),
+  ),
+  // Disediakan otomatis oleh Supabase Edge Functions (tidak perlu diisi manual di sana).
+  SUPABASE_URL: optional(z.url({ protocol: /^https?$/, error: 'SUPABASE_URL harus berupa URL proyek Supabase.' }).optional()),
+  SUPABASE_SECRET_KEYS: optional(z.string().optional()),
+  SUPABASE_SERVICE_ROLE_KEY: optional(z.string().optional()),
 
   SERVE_CLIENT: flag(false),
   CLIENT_DIST_DIR: optional(z.string().default('../client/dist')),
@@ -85,6 +99,39 @@ function parseTrustProxy(raw) {
   if (value === 'true') return true;
   if (/^\d+$/.test(value)) return Number(value);
   return value; // contoh: "loopback" atau daftar IP/subnet dipisah koma
+}
+
+/**
+ * Kunci server Supabase untuk Storage: format baru (SUPABASE_SECRET_KEYS, JSON {"default": "sb_secret_…"})
+ * diutamakan, lalu kunci service_role lama. Hanya dipakai di server, tidak pernah dikirim ke browser.
+ */
+function supabaseServerKey(e) {
+  if (e.SUPABASE_SECRET_KEYS) {
+    try {
+      const keys = JSON.parse(e.SUPABASE_SECRET_KEYS);
+      const key = keys.default ?? Object.values(keys)[0];
+      if (typeof key === 'string' && key) return key;
+    } catch {
+      throw new Error('SUPABASE_SECRET_KEYS bukan JSON yang valid.');
+    }
+  }
+  return e.SUPABASE_SERVICE_ROLE_KEY || null;
+}
+
+function photoStorage(e) {
+  if (e.PHOTO_STORAGE === 'local') return Object.freeze({ driver: 'local' });
+  const serverKey = supabaseServerKey(e);
+  if (!e.SUPABASE_URL || !serverKey) {
+    throw new Error(
+      'PHOTO_STORAGE=supabase membutuhkan SUPABASE_URL dan kunci server Supabase (SUPABASE_SECRET_KEYS atau SUPABASE_SERVICE_ROLE_KEY).',
+    );
+  }
+  return Object.freeze({
+    driver: 'supabase',
+    supabaseUrl: e.SUPABASE_URL.replace(/\/+$/, ''),
+    bucket: e.PHOTO_BUCKET,
+    serverKey,
+  });
 }
 
 function compileNisnPattern(source) {
@@ -157,6 +204,7 @@ export function buildConfig(env = process.env) {
     uploads: Object.freeze({
       dir: path.resolve(SERVER_ROOT, e.UPLOAD_DIR),
       maxBytes: e.UPLOAD_MAX_MB * 1024 * 1024,
+      storage: photoStorage(e),
     }),
     client: Object.freeze({
       serve: e.SERVE_CLIENT,
@@ -167,6 +215,15 @@ export function buildConfig(env = process.env) {
 }
 
 let cachedConfig;
+
+/**
+ * Menyetel konfigurasi dari sumber environment tertentu, mis. Supabase Edge Functions yang
+ * membaca secrets lewat Deno.env. Dipanggil sekali saat start, sebelum getConfig() dipakai.
+ */
+export function initConfig(env) {
+  cachedConfig = buildConfig(env);
+  return cachedConfig;
+}
 
 /** Konfigurasi aplikasi (dimuat sekali per proses). */
 export function getConfig() {

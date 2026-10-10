@@ -165,6 +165,9 @@ export function grantStatements({ schema, appRole = null, apiRoles = [] }) {
     statements.push(
       `REVOKE ALL ON ALL TABLES IN SCHEMA ${target} FROM ${role}`,
       `GRANT USAGE ON SCHEMA ${target} TO ${role}`,
+      // search_path bawaan role: setiap koneksi baru langsung memakai skema aplikasi, termasuk
+      // lewat Transaction pooler Supabase (port 6543) yang dipakai Edge Functions.
+      `ALTER ROLE ${role} SET search_path TO ${target}`,
       ...APP_GRANTS.map((grant) => `GRANT ${grant.privileges} ON ${target}.${pg.escapeIdentifier(grant.object)} TO ${role}`),
     );
     const policy = pg.escapeIdentifier(APP_POLICY);

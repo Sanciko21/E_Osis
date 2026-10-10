@@ -309,6 +309,7 @@ REVOKE ALL ON ALL SEQUENCES IN SCHEMA "eosis" FROM PUBLIC, "anon", "authenticate
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA "eosis" FROM PUBLIC, "anon", "authenticated", "service_role";
 REVOKE ALL ON ALL TABLES IN SCHEMA "eosis" FROM "eosis_app";
 GRANT USAGE ON SCHEMA "eosis" TO "eosis_app";
+ALTER ROLE "eosis_app" SET search_path TO "eosis";
 GRANT SELECT, INSERT, UPDATE, DELETE ON "eosis"."elections" TO "eosis_app";
 GRANT SELECT, INSERT, UPDATE, DELETE ON "eosis"."candidates" TO "eosis_app";
 GRANT INSERT ON "eosis"."voter_participation" TO "eosis_app";

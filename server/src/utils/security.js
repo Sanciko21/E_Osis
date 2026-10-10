@@ -1,34 +1,43 @@
+import { Buffer } from 'node:buffer';
 import crypto from 'node:crypto';
-import argon2 from 'argon2';
+import { argon2Verify, argon2id } from 'hash-wasm';
 
-/** Parameter Argon2id mengikuti rekomendasi OWASP (m=19 MiB minimum; di sini 64 MiB). */
+/**
+ * Parameter Argon2id mengikuti rekomendasi OWASP (m=19 MiB minimum; di sini 64 MiB).
+ * Implementasi WebAssembly (hash-wasm) agar berjalan sama di Node.js maupun Supabase Edge
+ * Functions (Deno, tanpa modul native). Formatnya string PHC standar
+ * ($argon2id$v=19$m=…,t=…,p=…$salt$hash), sehingga hash lama dari modul argon2 native tetap valid.
+ */
 const ARGON2_OPTIONS = Object.freeze({
-  type: argon2.argon2id,
-  memoryCost: 64 * 1024,
-  timeCost: 3,
+  memorySize: 64 * 1024,
+  iterations: 3,
   parallelism: 1,
+  hashLength: 32,
 });
+const SALT_BYTES = 16;
 
 export function hashPassword(plain) {
-  return argon2.hash(plain, ARGON2_OPTIONS);
+  return argon2id({ password: plain, salt: crypto.randomBytes(SALT_BYTES), ...ARGON2_OPTIONS, outputType: 'encoded' });
 }
 
 export async function verifyPassword(hash, plain) {
   try {
-    return await argon2.verify(hash, plain);
+    return await argon2Verify({ password: plain, hash });
   } catch {
     return false;
   }
 }
 
-let dummyHashPromise;
 /**
  * Hash palsu untuk menyamakan waktu respons login ketika email tidak terdaftar
- * (mencegah enumerasi akun lewat perbedaan waktu).
+ * (mencegah enumerasi akun lewat perbedaan waktu). Dibuat sekali dari password acak 256-bit yang
+ * dibuang, dengan parameter yang sama dengan ARGON2_OPTIONS; tidak ada akun yang memakainya.
+ * Disimpan sebagai konstanta agar login pertama di worker Edge tidak menghitung dua hash Argon2.
  */
+const DUMMY_PASSWORD_HASH = '$argon2id$v=19$m=65536,t=3,p=1$KjQwIZTcv90dLnUCnU0iQg$FfzrWIrK3TEMnUDYaiZP5rbvOVCn7f14ADpHOrjy4Tk';
+
 export function getDummyPasswordHash() {
-  dummyHashPromise ??= hashPassword(crypto.randomBytes(32).toString('hex'));
-  return dummyHashPromise;
+  return Promise.resolve(DUMMY_PASSWORD_HASH);
 }
 
 /** Token acak 256-bit dalam base64url (43 karakter). */

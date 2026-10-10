@@ -20,6 +20,11 @@ client/playwright/.cache/
 # File unggahan (foto kandidat) — data runtime, bukan kode
 server/uploads/
 
+# Supabase CLI (berkas sementara hasil "supabase link") & lockfile Deno lokal
+supabase/.temp/
+supabase/.branches/
+deno.lock
+
 # Log & sistem
 *.log
 npm-debug.log*

@@ -1,0 +1,10 @@
+# Konfigurasi Supabase CLI untuk E-OSIS. Hanya bagian Edge Function yang dipakai:
+# database dikelola manual lewat SQL Editor (server/sql/*.sql), bukan migrasi CLI.
+project_id = "e-osis"
+
+[functions.api]
+enabled = true
+# API memakai sesi admin & token CSRF sendiri; JWT Supabase tidak dipakai.
+verify_jwt = false
+import_map = "./functions/api/deno.json"
+entrypoint = "./functions/api/index.js"
