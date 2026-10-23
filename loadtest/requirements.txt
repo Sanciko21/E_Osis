@@ -1,0 +1,2 @@
+# Load test E-OSIS (Python 3.10+). Pasang di virtual environment: lihat loadtest/README.md
+locust==2.46.7

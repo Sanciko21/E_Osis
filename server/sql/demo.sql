@@ -3,8 +3,8 @@
 --
 -- Membuat satu pemilihan "[DEMO] ..." yang LANGSUNG DIBUKA (mulai 5 menit lalu, selesai
 -- 8 jam lagi) dengan 3 pasangan calon fiktif bergambar kartun (client/public/demo),
--- untuk mencoba voting di halaman /pilih.
--- Tidak membuat suara apa pun. Tempel seluruh isi file ke SQL Editor lalu klik Run.
+-- untuk mencoba memilih langsung dari kartu pasangan calon di beranda.
+-- Tidak membuat suara apa pun (suara dummy: sql/demo-votes.sql). Tempel seluruh isi file ke SQL Editor lalu klik Run.
 -- Hapus dengan sql/demo-delete.sql sebelum pemilihan sungguhan.
 
 DO $$

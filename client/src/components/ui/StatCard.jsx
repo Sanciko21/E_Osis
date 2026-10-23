@@ -1,7 +1,7 @@
-import { gsap } from 'gsap';
-import { useLayoutEffect, useRef } from 'react';
-import { prefersReducedMotion } from '../../utils/motion.js';
-import Icon from './Icon.jsx';
+import { gsap } from "gsap";
+import { useLayoutEffect, useRef } from "react";
+import { prefersReducedMotion } from "../../utils/motion.js";
+import Icon from "./Icon.jsx";
 
 /**
  * Angka statistik dengan animasi hitung naik (GSAP) saat dashboard dimuat/diperbarui.
@@ -16,7 +16,7 @@ export function AnimatedNumber({ value, format }) {
     const node = ref.current;
     if (!node) return undefined;
     if (!Number.isFinite(value)) {
-      node.textContent = '—';
+      node.textContent = "—";
       return undefined;
     }
     if (prefersReducedMotion()) {
@@ -29,7 +29,7 @@ export function AnimatedNumber({ value, format }) {
       gsap.to(counter, {
         current: value,
         duration: 0.9,
-        ease: 'power2.out',
+        ease: "power2.out",
         onUpdate: () => {
           displayed.current = counter.current;
           node.textContent = format(Math.round(counter.current));
@@ -49,12 +49,22 @@ export function AnimatedNumber({ value, format }) {
   return (
     <>
       <span ref={ref} aria-hidden="true" className="stat__value-anim" />
-      <span className="sr-only">{Number.isFinite(value) ? format(value) : 'tidak tersedia'}</span>
+      <span className="sr-only">
+        {Number.isFinite(value) ? format(value) : "tidak tersedia"}
+      </span>
     </>
   );
 }
 
-export default function StatCard({ icon, label, value, format, suffix, note, tone = 'default' }) {
+export default function StatCard({
+  icon,
+  label,
+  value,
+  format,
+  suffix,
+  note,
+  tone = "default",
+}) {
   return (
     <div className={`stat stat--${tone}`}>
       <div className="stat__head">

@@ -17,6 +17,7 @@ const ElectionsPage = lazy(() => import('./pages/admin/ElectionsPage.jsx'));
 const ElectionFormPage = lazy(() => import('./pages/admin/ElectionFormPage.jsx'));
 const CandidatesPage = lazy(() => import('./pages/admin/CandidatesPage.jsx'));
 const AuditLogPage = lazy(() => import('./pages/admin/AuditLogPage.jsx'));
+const LiveReportPage = lazy(() => import('./pages/admin/LiveReportPage.jsx'));
 
 function Lazy({ children }) {
   return (
@@ -48,6 +49,18 @@ export const routes = [
   {
     path: '/admin/login',
     element: <Lazy><LoginPage /></Lazy>,
+    errorElement: <RouteError />,
+  },
+  {
+    // Panel layar penuh untuk proyektor (tanpa sidebar admin); tetap wajib login admin/pengawas.
+    path: '/admin/live',
+    element: (
+      <ProtectedRoute>
+        <Lazy>
+          <LiveReportPage />
+        </Lazy>
+      </ProtectedRoute>
+    ),
     errorElement: <RouteError />,
   },
   {

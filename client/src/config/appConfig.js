@@ -15,4 +15,6 @@ export const appConfig = Object.freeze({
   voteTimeoutMs: 20_000,
   /** Interval pembaruan otomatis dashboard admin (ms). */
   dashboardRefreshMs: 15_000,
+  /** Interval pembaruan panel Live Report untuk layar/proyektor (ms). */
+  liveReportRefreshMs: 5_000,
 });

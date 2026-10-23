@@ -2,13 +2,24 @@
  * Menyusun script untuk SQL Editor Supabase di server/sql:
  * - setup.sql: hasilnya sama dengan "npm run db:setup" (role aplikasi, skema, migrasi,
  *   pencatatan migrasi, hak akses), dibangun dari file migrasi & APP_GRANTS yang sama dengan CLI;
- * - demo.sql / demo-delete.sql: data demo dari seeds/demo-data.js (sama dengan db:seed:demo).
+ * - demo.sql / demo-delete.sql: data demo dari seeds/demo-data.js (sama dengan db:seed:demo);
+ * - demo-votes.sql: suara dummy untuk pemilihan demo (pemilih fiktif, NISN rentang khusus demo).
  * Tes unit memastikan file yang tersimpan selalu sesuai hasil generator ini.
  */
 import path from 'node:path';
 import pg from 'pg';
 import { SERVER_ROOT } from '../../src/config/env.js';
-import { DEMO_CANDIDATES, DEMO_DESCRIPTION, DEMO_TITLE, DEMO_TITLE_PREFIX, demoPhotoUrl } from '../../seeds/demo-data.js';
+import {
+  DEMO_CANDIDATES,
+  DEMO_DESCRIPTION,
+  DEMO_ELIGIBLE_VOTERS,
+  DEMO_NISN_PREFIX,
+  DEMO_TITLE,
+  DEMO_TITLE_PREFIX,
+  DEMO_VOTES,
+  DEMO_VOTING_HOURS,
+  demoPhotoUrl,
+} from '../../seeds/demo-data.js';
 import { SCHEMA_MIGRATIONS_DDL, SUPABASE_API_ROLES, grantStatements, readMigrationFiles } from './db-admin.js';
 
 export const SQL_DIR = path.join(SERVER_ROOT, 'sql');
@@ -113,8 +124,8 @@ export function buildDemoSql({ schema = 'eosis' } = {}) {
 --
 -- Membuat satu pemilihan "${DEMO_TITLE_PREFIX} ..." yang LANGSUNG DIBUKA (mulai 5 menit lalu, selesai
 -- 8 jam lagi) dengan ${DEMO_CANDIDATES.length} pasangan calon fiktif bergambar kartun (client/public/demo),
--- untuk mencoba voting di halaman /pilih.
--- Tidak membuat suara apa pun. Tempel seluruh isi file ke SQL Editor lalu klik Run.
+-- untuk mencoba memilih langsung dari kartu pasangan calon di beranda.
+-- Tidak membuat suara apa pun (suara dummy: sql/demo-votes.sql). Tempel seluruh isi file ke SQL Editor lalu klik Run.
 -- Hapus dengan sql/demo-delete.sql sebelum pemilihan sungguhan.
 
 DO $$
@@ -133,6 +144,104 @@ EXCEPTION
     RAISE EXCEPTION 'Sudah ada pemilihan aktif. Tutup pemilihan itu dulu dari dashboard admin, lalu Run lagi.';
 END
 $$;
+`;
+}
+
+/**
+ * Suara DUMMY untuk pemilihan [DEMO] terbaru: satu baris voter_participation + satu baris votes per
+ * pemilih fiktif, persis seperti alur voting aplikasi (dashboard tetap lolos pemeriksaan integritas).
+ */
+export function buildDemoVotesSql({ schema = 'eosis' } = {}) {
+  const table = (name) => `${pg.escapeIdentifier(schema)}.${name}`;
+  const titlePattern = pg.escapeLiteral(`${DEMO_TITLE_PREFIX}%`);
+  const total = DEMO_VOTES.reduce((sum, count) => sum + count, 0);
+  const nisnDigits = 10 - DEMO_NISN_PREFIX.length;
+  const firstNisn = `${DEMO_NISN_PREFIX}${'1'.padStart(nisnDigits, '0')}`;
+  const lastNisn = `${DEMO_NISN_PREFIX}${String(total).padStart(nisnDigits, '0')}`;
+  let cumulative = 0;
+  const candidateCase = DEMO_VOTES.map((count, index) => {
+    cumulative += count;
+    return index === DEMO_VOTES.length - 1 ? `ELSE ${index + 1}` : `WHEN n <= ${cumulative} THEN ${index + 1}`;
+  }).join(' ');
+  const turnout = Math.round((total / DEMO_ELIGIBLE_VOTERS) * 100);
+  const summary = DEMO_VOTES.map((count, index) => `Paslon ${String(index + 1).padStart(2, '0')}: ${count}`).join(', ');
+  const latestDemo = `SELECT id FROM ${table('elections')} WHERE title LIKE ${titlePattern} AND status <> 'draft' ORDER BY created_at DESC LIMIT 1`;
+
+  return `-- E-OSIS • suara DUMMY untuk pemilihan ${DEMO_TITLE_PREFIX} (SQL Editor Supabase)
+-- FILE INI DIBUAT OTOMATIS oleh "npm run db:sql" (isi dari server/seeds/demo-data.js) — jangan diedit manual.
+--
+-- Menambahkan ${total} pemilih fiktif ke pemilihan "${DEMO_TITLE_PREFIX} ..." terbaru (jalankan demo.sql dulu):
+--   ${summary} suara.
+-- - NISN dummy ${firstNisn}–${lastNisn}: jangan dipakai saat mencoba memilih secara manual.
+-- - Waktu memilih tersebar selama ${DEMO_VOTING_HOURS} jam terakhir periode pemungutan suara (dua puncak, seperti
+--   jam istirahat); bila perlu, waktu mulai pemilihan demo dimajukan agar periode itu tercakup.
+-- - Jumlah siswa berhak pilih diisi ${DEMO_ELIGIBLE_VOTERS} bila masih kosong (partisipasi ${turnout}%).
+-- - Aman dijalankan ulang: NISN yang sudah tercatat dilewati sehingga suara tidak dobel.
+-- Hasil langsung tampil di dashboard admin. Untuk halaman Hasil publik, selesaikan pemilihan dan
+-- publikasikan hasil dari dashboard admin. Hapus semuanya dengan sql/demo-delete.sql.
+-- Tempel seluruh isi file ke SQL Editor lalu klik Run.
+
+DO $$
+DECLARE
+  demo ${table('elections')}%ROWTYPE;
+  window_end timestamptz;
+  window_start timestamptz;
+  added integer;
+BEGIN
+  SELECT * INTO demo FROM ${table('elections')}
+   WHERE title LIKE ${titlePattern} AND status <> 'draft'
+   ORDER BY created_at DESC
+   LIMIT 1;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Belum ada pemilihan ${DEMO_TITLE_PREFIX} (bukan draf). Jalankan sql/demo.sql terlebih dahulu.';
+  END IF;
+  IF (SELECT count(*) FROM ${table('candidates')}
+       WHERE election_id = demo.id AND candidate_number BETWEEN 1 AND ${DEMO_VOTES.length}) < ${DEMO_VOTES.length} THEN
+    RAISE EXCEPTION 'Pasangan calon demo nomor 1–${DEMO_VOTES.length} tidak lengkap. Jalankan sql/demo-delete.sql lalu sql/demo.sql.';
+  END IF;
+
+  window_end := LEAST(demo.end_at, now());
+  window_start := LEAST(demo.start_at, window_end - interval '${DEMO_VOTING_HOURS} hours');
+  UPDATE ${table('elections')}
+     SET start_at = window_start,
+         eligible_voter_count = COALESCE(eligible_voter_count, ${DEMO_ELIGIBLE_VOTERS})
+   WHERE id = demo.id;
+
+  WITH voters AS MATERIALIZED (
+    SELECT ${pg.escapeLiteral(DEMO_NISN_PREFIX)} || lpad(n::text, ${nisnDigits}, '0') AS nisn,
+           CASE ${candidateCase} END AS candidate_number,
+           window_start + (window_end - window_start) * LEAST(0.995, GREATEST(0.005,
+             CASE WHEN random() < 0.55 THEN 0.32 ELSE 0.74 END + (random() + random() + random() - 1.5) * 0.16
+           )) AS voted_at
+      FROM generate_series(1, ${total}) AS n
+  ),
+  recorded AS (
+    INSERT INTO ${table('voter_participation')} (election_id, nisn, voted_at, created_at)
+    SELECT demo.id, voters.nisn, voters.voted_at, voters.voted_at FROM voters
+    ON CONFLICT (election_id, nisn) DO NOTHING
+    RETURNING nisn
+  )
+  -- Seperti alur voting aplikasi: id suara UUID acak, hanya TANGGAL (UTC), urutan acak.
+  INSERT INTO ${table('votes')} (id, election_id, candidate_id, created_on)
+  SELECT gen_random_uuid(), demo.id, c.id, (v.voted_at AT TIME ZONE 'UTC')::date
+    FROM recorded r
+    JOIN voters v ON v.nisn = r.nisn
+    JOIN ${table('candidates')} c ON c.election_id = demo.id AND c.candidate_number = v.candidate_number
+   ORDER BY random();
+  GET DIAGNOSTICS added = ROW_COUNT;
+  RAISE NOTICE '% pemilih dummy ditambahkan ke "%".', added, demo.title;
+END
+$$;
+
+-- Ringkasan perolehan suara pemilihan ${DEMO_TITLE_PREFIX} (tampil sebagai hasil di SQL Editor).
+SELECT c.candidate_number AS nomor_urut,
+       c.chairperson_name || ' & ' || c.vice_chairperson_name AS pasangan_calon,
+       count(v.id) AS suara
+  FROM ${table('candidates')} c
+  LEFT JOIN ${table('votes')} v ON v.candidate_id = c.id
+ WHERE c.election_id = (${latestDemo})
+ GROUP BY c.candidate_number, c.chairperson_name, c.vice_chairperson_name
+ ORDER BY c.candidate_number;
 `;
 }
 
@@ -157,5 +266,6 @@ DELETE FROM ${table('elections')} WHERE title LIKE ${pg.escapeLiteral(`${DEMO_TI
 export const GENERATED_SQL_FILES = Object.freeze({
   'setup.sql': buildSetupSql,
   'demo.sql': buildDemoSql,
+  'demo-votes.sql': buildDemoVotesSql,
   'demo-delete.sql': buildDemoDeleteSql,
 });

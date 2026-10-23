@@ -25,6 +25,11 @@ supabase/.temp/
 supabase/.branches/
 deno.lock
 
+# Load test (Python/Locust): virtual environment & laporan hasil
+loadtest/.venv/
+loadtest/reports/
+__pycache__/
+
 # Log & sistem
 *.log
 npm-debug.log*

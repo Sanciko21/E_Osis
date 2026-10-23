@@ -39,3 +39,19 @@ export const DEMO_CANDIDATES = Object.freeze([
     ].join('\n'),
   },
 ]);
+
+/**
+ * Suara DUMMY untuk sql/demo-votes.sql: jumlah suara per nomor urut paslon demo (urutan sama dengan
+ * DEMO_CANDIDATES). Totalnya = jumlah pemilih dummy. Angkanya fiktif dan dibuat jelas berbeda agar
+ * grafik hasil mudah dibaca.
+ */
+export const DEMO_VOTES = Object.freeze([418, 352, 230]);
+/** Jumlah siswa berhak pilih untuk pemilihan demo (hanya diisi bila masih kosong) → partisipasi 80%. */
+export const DEMO_ELIGIBLE_VOTERS = 1250;
+/**
+ * NISN dummy: "99" + nomor urut 8 digit (9900000001, 9900000002, …). Rentang ini khusus data demo,
+ * jangan dipakai saat mencoba memilih secara manual.
+ */
+export const DEMO_NISN_PREFIX = '99';
+/** Lama periode pemungutan suara demo yang diisi suara dummy (jam sebelum sekarang/penutupan). */
+export const DEMO_VOTING_HOURS = 6;

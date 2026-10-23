@@ -4,8 +4,12 @@ import { candidatePairName } from '../../utils/election.js';
 import { formatNumber, formatPercent } from '../../utils/format.js';
 import { barValueLabelsPlugin, baseAnimation, tooltipStyle } from './chartSetup.js';
 
-/** Grafik batang horizontal: perbandingan jumlah suara tiap pasangan calon. */
-export default function VotesBarChart({ candidates }) {
+/**
+ * Grafik batang horizontal: perbandingan jumlah suara tiap pasangan calon.
+ * `large`: huruf lebih besar agar terbaca dari jauh (panel Live Report di proyektor).
+ */
+export default function VotesBarChart({ candidates, large = false }) {
+  const fontSize = large ? 16 : 12;
   const data = buildVotesBarData(candidates);
   const label = (index) => `${formatNumber(candidates[index].votes)} · ${formatPercent(candidates[index].percentage)}`;
   const options = {
@@ -13,16 +17,16 @@ export default function VotesBarChart({ candidates }) {
     responsive: true,
     maintainAspectRatio: false,
     animation: baseAnimation(),
-    layout: { padding: { right: 96 } },
+    layout: { padding: { right: large ? 132 : 96 } },
     scales: {
       x: {
         beginAtZero: true,
-        ticks: { precision: 0, color: CHART_INK.muted },
+        ticks: { precision: 0, color: CHART_INK.muted, font: { size: fontSize - 1 } },
         grid: { color: CHART_INK.grid, lineWidth: 1 },
         border: { color: CHART_INK.baseline },
       },
       y: {
-        ticks: { color: CHART_INK.text, font: { weight: '600' } },
+        ticks: { color: CHART_INK.text, font: { weight: '600', size: fontSize } },
         grid: { display: false },
         border: { color: CHART_INK.baseline },
       },
@@ -42,7 +46,7 @@ export default function VotesBarChart({ candidates }) {
           },
         },
       },
-      eosisBarValueLabels: { formatter: label },
+      eosisBarValueLabels: { formatter: label, fontSize },
     },
   };
 

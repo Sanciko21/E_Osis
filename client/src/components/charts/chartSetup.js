@@ -61,7 +61,7 @@ export const barValueLabelsPlugin = {
     if (!meta?.data?.length || typeof options?.formatter !== 'function') return;
     const { ctx } = chart;
     ctx.save();
-    ctx.font = `600 12px ${ChartJS.defaults.font.family}`;
+    ctx.font = `600 ${options.fontSize ?? 12}px ${ChartJS.defaults.font.family}`;
     ctx.fillStyle = CHART_INK.text;
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';

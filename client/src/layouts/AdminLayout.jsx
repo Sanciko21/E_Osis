@@ -7,6 +7,7 @@ import { ROLE_LABELS } from '../utils/election.js';
 
 const NAV = [
   { to: '/admin', label: 'Dashboard', icon: 'chart', end: true },
+  { to: '/admin/live', label: 'Live Report', icon: 'monitor' },
   { to: '/admin/pemilihan', label: 'Pemilihan & Kandidat', icon: 'calendar' },
   { to: '/admin/audit-log', label: 'Audit Log', icon: 'list' },
 ];

@@ -257,10 +257,17 @@ Tanpa skrip `db:*` — semua dijalankan sendiri di **Supabase → SQL Editor**. 
 **Data demo** (opsional, untuk mencoba voting): tempel [`server/sql/demo.sql`](server/sql/demo.sql)
 ke SQL Editor lalu Run — dibuat satu pemilihan `[DEMO]` yang langsung dibuka 8 jam dengan 3
 pasangan calon fiktif bergambar kartun (tanpa suara). Gambarnya ada di `client/public/demo/` dan
-dapat dibuat ulang dengan `npm run demo:photos --prefix client`. Sebelum pemilihan sungguhan, hapus dengan
-[`server/sql/demo-delete.sql`](server/sql/demo-delete.sql) (ikut menghapus suara & NISN uji coba).
+dapat dibuat ulang dengan `npm run demo:photos --prefix client`.
 
-`setup.sql`, `demo.sql`, dan `demo-delete.sql` dibuat otomatis oleh `npm run db:sql`; jangan diedit manual.
+**Suara dummy** (opsional, untuk mencoba grafik & hasil): setelah `demo.sql`, jalankan
+[`server/sql/demo-votes.sql`](server/sql/demo-votes.sql) — menambahkan **1.000 pemilih fiktif**
+(Paslon 01: 418, 02: 352, 03: 230 suara; NISN `9900000001`–`9900001000`) yang tersebar 6 jam, dan mengisi
+jumlah siswa berhak pilih 1.250 (partisipasi 80%) bila masih kosong. Aman dijalankan ulang (tidak dobel).
+Hasil langsung terlihat di dashboard admin; untuk halaman Hasil publik, selesaikan pemilihan dan publikasikan
+hasil dari dashboard admin. Sebelum pemilihan sungguhan, hapus semua data demo dengan
+[`server/sql/demo-delete.sql`](server/sql/demo-delete.sql) (ikut menghapus suara & NISN uji coba/dummy).
+
+`setup.sql`, `demo.sql`, `demo-votes.sql`, dan `demo-delete.sql` dibuat otomatis oleh `npm run db:sql`; jangan diedit manual.
 Script ini untuk database **baru**. Bila kelak ada file migrasi baru untuk database yang sudah
 berisi data, terapkan dengan `npm run db:migrate` lalu `npm run db:grants` — `setup.sql` akan
 menolak karena skema sudah ada. Kedua cara saling kompatibel karena `setup.sql` ikut mengisi
@@ -283,7 +290,7 @@ npm run db:setup       # = db:create + db:migrate + db:grants
 | `npm run db:seed` | Membuat akun admin & pengawas **lokal** (ditolak di production) |
 | `npm run db:seed:demo` | Pemilihan `[DEMO]` berstatus terjadwal + 3 paslon fiktif (tanpa suara) |
 | `npm run db:seed:demo -- --open` | Sama, tetapi langsung aktif agar bisa mencoba voting |
-| `npm run db:sql` | Membuat ulang script SQL Editor di `sql/` (`setup.sql`, `demo.sql`, `demo-delete.sql`) |
+| `npm run db:sql` | Membuat ulang script SQL Editor di `sql/` (`setup.sql`, `demo.sql`, `demo-votes.sql`, `demo-delete.sql`) |
 
 **Seed admin yang aman.** Tidak ada password bawaan di kode. `db:seed` memakai
 `SEED_ADMIN_PASSWORD`/`SEED_OBSERVER_PASSWORD` dari environment, atau membuat password acak kuat
@@ -457,6 +464,19 @@ Di PowerShell, set variabel dengan `$env:E2E_ADMIN_EMAIL="..."` sebelum `npm run
 Playwright otomatis menyalakan backend & Vite bila belum berjalan (`client/playwright.config.js`).
 
 Tes E2E membuat suara sungguhan pada pemilihan demo — **jangan** jalankan terhadap database produksi.
+
+### Load test (Locust)
+
+Untuk mengukur kemampuan server saat banyak siswa memilih bersamaan (permintaan/detik, waktu respons
+p95/p99, kegagalan) sambil memeriksa bahwa NISN ganda tetap ditolak. Butuh Python 3.10+; panduan,
+skenario "hari pemilihan", dan cara membaca hasil ada di [`loadtest/README.md`](loadtest/README.md).
+
+```powershell
+cd loadtest; python -m venv .venv; .venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\locust            # buka http://localhost:8089
+```
+
+Voting uji hanya dikirim ke pemilihan `[DEMO]` (NISN berawalan `98`, terhapus oleh `demo-delete.sql`).
 
 ### Pemetaan 17 tes wajib
 

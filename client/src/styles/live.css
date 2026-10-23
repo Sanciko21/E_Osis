@@ -1,0 +1,590 @@
+/*
+ * Panel Live Report — dirancang untuk layar besar/proyektor 16:9 (1366×768 s.d. 1920×1080):
+ * seluruh isi muat satu layar tanpa scroll, ukuran huruf mengikuti lebar layar (clamp + vw).
+ * Di layar sempit (< 1100px) tata letak bertumpuk dan boleh di-scroll.
+ * Angka & label memakai warna teks; warna paslon hanya untuk tanda (bar, garis aksen, foto).
+ */
+.live {
+  --live-gap: clamp(12px, 1.3vw, 24px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--live-gap);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--live-gap);
+  background:
+    radial-gradient(900px 520px at 100% 0%, rgb(36 87 230 / 0.55), transparent 65%),
+    radial-gradient(720px 440px at 0% 100%, rgb(24 169 153 / 0.22), transparent 65%),
+    linear-gradient(150deg, var(--navy-950), var(--navy-900));
+  color: #fff;
+}
+
+@media (min-width: 1100px) {
+  .live {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+}
+
+.live :focus-visible {
+  outline-color: var(--focus-ring-on-dark);
+}
+
+/* ------------------------------------------------------------- Header */
+.live__header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--live-gap);
+}
+
+.live__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.live__brand-name {
+  font-size: clamp(1.05rem, 1.35vw, 1.5rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.live__brand-name span {
+  margin-left: 6px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--amber-400);
+  color: var(--navy-900);
+  font-size: 0.68em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.live__school {
+  color: var(--text-on-dark-muted);
+  font-size: clamp(0.78rem, 0.9vw, 0.95rem);
+  font-weight: 600;
+}
+
+.live__heading {
+  min-width: 0;
+  text-align: center;
+}
+
+.live__title {
+  font-size: clamp(1.2rem, 2vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.live__schedule {
+  margin-top: 2px;
+  color: var(--text-on-dark-muted);
+  font-size: clamp(0.8rem, 0.95vw, 1rem);
+}
+
+.live__status {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  font-size: clamp(0.75rem, 0.9vw, 0.95rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.live-pill--live {
+  border-color: rgb(255 120 107 / 0.55);
+  background: rgb(255 120 107 / 0.16);
+  color: #ffe1dc;
+}
+
+.live-pill--final {
+  border-color: rgb(53 201 138 / 0.55);
+  background: rgb(53 201 138 / 0.16);
+  color: #d3f5e4;
+}
+
+.live-pill__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--coral-500);
+  animation: live-pulse 1.6s ease-out infinite;
+}
+
+@keyframes live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(255 120 107 / 0.75);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 10px rgb(255 120 107 / 0);
+  }
+}
+
+.live__clock {
+  font-size: clamp(1.35rem, 2.1vw, 2.4rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.live__updated {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-on-dark-muted);
+  font-size: clamp(0.72rem, 0.82vw, 0.9rem);
+}
+
+.live__controls {
+  display: flex;
+  gap: 8px;
+  transition: opacity 0.3s ease;
+}
+
+/* Saat layar penuh, tombol meredup agar tidak mengganggu penonton; kembali jelas saat disorot/difokus. */
+.live.is-fullscreen .live__controls {
+  opacity: 0.25;
+}
+
+.live.is-fullscreen .live__controls:hover,
+.live.is-fullscreen .live__controls:focus-within {
+  opacity: 1;
+}
+
+.live-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: var(--radius);
+  background: rgb(255 255 255 / 0.06);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.live-icon-btn:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+/* --------------------------------------------------------------- Isi */
+.live__main {
+  display: grid;
+  grid-template-rows: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: var(--live-gap);
+  min-height: 0;
+}
+
+.live__main > .state {
+  grid-row: 1 / -1;
+  place-self: center;
+  width: min(100%, 40rem);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ----------------------------------------------------- Kartu paslon */
+.live-candidates {
+  display: grid;
+  grid-template-columns: repeat(var(--count, 3), minmax(0, 1fr));
+  gap: var(--live-gap);
+  min-height: 0;
+}
+
+.live-card {
+  --candidate-accent: var(--blue-600);
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  color: var(--text);
+  transition:
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+/* Garis aksen warna paslon (sama dengan warna di grafik). */
+.live-card::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 auto;
+  height: 6px;
+  background: var(--candidate-accent);
+  content: '';
+}
+
+.live-card.is-leading {
+  border-color: var(--amber-400);
+  box-shadow:
+    0 0 0 4px rgb(255 201 40 / 0.35),
+    var(--shadow-lg);
+}
+
+/* Area foto mengisi sisa tinggi kartu dan boleh mengecil di layar pendek tanpa menimpa teks. */
+.live-card__media {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px 12px 0;
+}
+
+.live-card .candidate-photo {
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.live-card__crown {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: var(--amber-400);
+  box-shadow: 0 8px 18px -8px rgb(16 27 73 / 0.6);
+  color: var(--navy-900);
+  font-size: clamp(0.72rem, 0.85vw, 0.95rem);
+  font-weight: 800;
+}
+
+.live-card__body {
+  display: grid;
+  gap: clamp(4px, 0.7vh, 10px);
+  padding: clamp(10px, 1.1vw, 20px) clamp(14px, 1.4vw, 24px) clamp(12px, 1.3vw, 22px);
+}
+
+.live-card__number {
+  justify-self: start;
+  padding: 3px 10px;
+  border: 1px solid color-mix(in srgb, var(--candidate-accent) 35%, #fff);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--candidate-accent) 12%, #fff);
+  color: var(--navy-900);
+  font-size: clamp(0.68rem, 0.78vw, 0.85rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.live-card__names {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+  color: var(--navy-900);
+  font-size: clamp(0.98rem, 1.3vw, 1.5rem);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.live-card__amp {
+  color: var(--text-muted);
+}
+
+.live-card__score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.live-card__votes {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--navy-900);
+}
+
+/* Angka utama: huruf proporsional (bukan tabular) sesuai panduan angka besar. */
+.live-card__votes-value {
+  font-size: clamp(2rem, min(4vw, 7.2vh), 4.8rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.live-card__unit {
+  color: var(--text-muted);
+  font-size: clamp(0.82rem, 1vw, 1.1rem);
+  font-weight: 700;
+}
+
+.live-card__percent {
+  color: var(--navy-800);
+  font-size: clamp(1.3rem, min(2.2vw, 4vh), 2.6rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.live-card__track {
+  overflow: hidden;
+  height: clamp(8px, 1.1vh, 14px);
+  border-radius: var(--radius-full);
+  background: var(--surface-muted);
+}
+
+.live-card__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--candidate-accent);
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.live-card__details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0;
+  padding-top: clamp(6px, 0.8vh, 10px);
+  border-top: 1px solid var(--border);
+}
+
+.live-card__details dt,
+.live-turnout__stats dt {
+  color: var(--text-subtle);
+  font-size: clamp(0.66rem, 0.74vw, 0.8rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.live-card__details dd,
+.live-turnout__stats dd {
+  margin: 0;
+  color: var(--navy-900);
+  font-size: clamp(0.9rem, 1.05vw, 1.2rem);
+  font-weight: 800;
+}
+
+/* ------------------------------------------------------ Panel bawah */
+.live-panels {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1.1fr);
+  gap: var(--live-gap);
+  min-height: 0;
+}
+
+.live-panel {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1vh, 12px);
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  padding: clamp(14px, 1.3vw, 22px);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  color: var(--text);
+}
+
+.live-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--navy-900);
+  font-size: clamp(0.95rem, 1.15vw, 1.3rem);
+  font-weight: 800;
+}
+
+.live-panel__title .icon {
+  color: var(--blue-600);
+}
+
+.live-panel__waiting {
+  margin: auto;
+  color: var(--text-muted);
+  font-size: clamp(0.9rem, 1vw, 1.1rem);
+  font-weight: 600;
+}
+
+.live-panel__note {
+  color: var(--text-subtle);
+  font-size: 0.8rem;
+}
+
+/* Grafik batang mengisi sisa tinggi panel (tinggi minimum bawaan komponen tidak dipakai di sini). */
+.live-panel .chart-canvas--fill {
+  flex: 1 1 auto;
+  min-height: 0 !important;
+}
+
+/* Partisipasi */
+.live-turnout__hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  color: var(--navy-900);
+  font-size: clamp(2rem, min(4.2vw, 7.5vh), 5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.live-turnout__hero-label {
+  color: var(--text-muted);
+  font-size: clamp(0.8rem, 0.95vw, 1.05rem);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.live-turnout__meter {
+  overflow: hidden;
+  height: clamp(10px, 1.4vh, 16px);
+  border-radius: var(--radius-full);
+  background: var(--meter-track);
+}
+
+.live-turnout__meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--meter-fill);
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.live-turnout__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(6px, 1vh, 12px) 16px;
+  margin: auto 0 0;
+}
+
+/* Persentase (donat + legenda) */
+.live-share {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
+}
+
+.live-share .chart-canvas--doughnut {
+  height: clamp(140px, 24vh, 300px);
+}
+
+.live-share .doughnut-center__value {
+  font-size: clamp(1.3rem, 1.9vw, 2.2rem);
+}
+
+.live-share .legend__item {
+  font-size: clamp(0.78rem, 0.88vw, 1rem);
+}
+
+/* ------------------------------------------------------------ Footer */
+.live__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 16px;
+  color: var(--text-on-dark-muted);
+  font-size: clamp(0.72rem, 0.82vw, 0.9rem);
+}
+
+.live__footer p:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live__footer .icon {
+  color: var(--mint-500);
+}
+
+.live__copyright {
+  color: var(--text-on-dark);
+}
+
+/* Proyektor/laptop berlayar pendek (mis. 1366×768): label nomor urut cukup di lencana foto
+   (tetap dibacakan pembaca layar) agar foto paslon tetap mendapat ruang. */
+@media (min-width: 1100px) and (max-height: 820px) {
+  .live-card__number {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .live-card__body {
+    padding-block: 8px 12px;
+  }
+}
+
+/* ------------------------------------------- Layar sempit (laptop kecil/ponsel) */
+@media (max-width: 1099px) {
+  .live__header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .live__heading {
+    grid-column: 1 / -1;
+    order: 3;
+    text-align: left;
+  }
+
+  .live__status {
+    grid-column: 1;
+    order: 4;
+    justify-items: start;
+  }
+
+  .live__main {
+    grid-template-rows: auto auto;
+  }
+
+  .live-candidates {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  }
+
+  .live-card .candidate-photo {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .live-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .live-panel .chart-canvas--fill {
+    min-height: 220px !important;
+  }
+
+  .live-share {
+    grid-template-columns: 1fr;
+  }
+}

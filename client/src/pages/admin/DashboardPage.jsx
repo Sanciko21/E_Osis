@@ -86,6 +86,17 @@ export default function DashboardPage() {
             <Icon name="refresh" size={16} className={dashboard.refreshing ? 'spin' : ''} />
             Muat ulang
           </button>
+          {/* Panel layar penuh untuk proyektor; dibuka di tab baru agar dashboard tetap bisa dipakai. */}
+          <Link
+            to={`/admin/live${election ? `?pemilihan=${encodeURIComponent(election.id)}` : ''}`}
+            className="btn btn--primary btn--sm"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Icon name="monitor" size={16} />
+            Live Report
+            <span className="sr-only"> (tab baru)</span>
+          </Link>
         </div>
       </header>
 

@@ -1,15 +1,23 @@
-import { m } from 'motion/react';
-import { useEffect, useId, useRef } from 'react';
-import { dialogPanel } from '../../lib/motionPresets.js';
-import { prefersReducedMotion } from '../../utils/motion.js';
-import Icon from './Icon.jsx';
+import { m } from "motion/react";
+import { useEffect, useId, useRef } from "react";
+import { dialogPanel } from "../../lib/motionPresets.js";
+import { prefersReducedMotion } from "../../utils/motion.js";
+import Icon from "./Icon.jsx";
 
 /**
  * Dialog modal berbasis elemen <dialog> bawaan peramban: fokus terkunci di dalam dialog,
  * tombol Esc menutup, dan fokus dikembalikan ke elemen pemicu saat ditutup. Panel muncul dengan
  * transisi Motion (tanpa animasi bila pengguna memilih "kurangi animasi").
  */
-export default function Dialog({ open, onClose, title, description, children, footer, size = 'md' }) {
+export default function Dialog({
+  open,
+  onClose,
+  title,
+  description,
+  children,
+  footer,
+  size = "md",
+}) {
   const ref = useRef(null);
   const titleId = useId();
   const descriptionId = useId();
@@ -40,8 +48,8 @@ export default function Dialog({ open, onClose, title, description, children, fo
       event.preventDefault();
       onCloseRef.current?.();
     };
-    node.addEventListener('cancel', handleCancel);
-    return () => node.removeEventListener('cancel', handleCancel);
+    node.addEventListener("cancel", handleCancel);
+    return () => node.removeEventListener("cancel", handleCancel);
   }, []);
 
   const closeOnBackdrop = (event) => {
@@ -60,7 +68,7 @@ export default function Dialog({ open, onClose, title, description, children, fo
         <m.div
           className="dialog__panel"
           variants={dialogPanel}
-          initial={prefersReducedMotion() ? false : 'hidden'}
+          initial={prefersReducedMotion() ? false : "hidden"}
           animate="show"
         >
           <header className="dialog__header">
@@ -74,7 +82,12 @@ export default function Dialog({ open, onClose, title, description, children, fo
                 </p>
               )}
             </div>
-            <button type="button" className="icon-btn" onClick={onClose} aria-label="Tutup dialog">
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={onClose}
+              aria-label="Tutup dialog"
+            >
               <Icon name="x" />
             </button>
           </header>

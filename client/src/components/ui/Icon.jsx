@@ -11,6 +11,7 @@ import {
   CircleCheckBig,
   CircleHelp,
   Clock,
+  Crown,
   Eye,
   EyeOff,
   Hourglass,
@@ -21,8 +22,11 @@ import {
   ListChecks,
   Lock,
   LogOut,
+  Maximize,
   Megaphone,
   Menu,
+  Minimize,
+  MonitorPlay,
   MousePointerClick,
   Pause,
   Plus,
@@ -40,7 +44,7 @@ import {
   Users,
   Vote,
   X,
-} from 'lucide-react';
+} from "lucide-react";
 
 /**
  * Ikon garis Lucide (https://lucide.dev, lisensi ISC) dengan nama pendek proyek.
@@ -61,6 +65,7 @@ const ICONS = {
   checkCircle: CircleCheckBig,
   chevronDown: ChevronDown,
   clock: Clock,
+  crown: Crown,
   edit: SquarePen,
   eye: Eye,
   eyeOff: EyeOff,
@@ -73,8 +78,11 @@ const ICONS = {
   listChecks: ListChecks,
   lock: Lock,
   logout: LogOut,
+  maximize: Maximize,
   megaphone: Megaphone,
   menu: Menu,
+  minimize: Minimize,
+  monitor: MonitorPlay,
   pause: Pause,
   plus: Plus,
   pointer: MousePointerClick,
@@ -91,11 +99,23 @@ const ICONS = {
   x: X,
 };
 
-export default function Icon({ name, size = 20, className = '', strokeWidth = 2 }) {
+export default function Icon({
+  name,
+  size = 20,
+  className = "",
+  strokeWidth = 2,
+}) {
   // Titik status (mis. "Sedang Berlangsung") bukan ikon garis.
-  if (name === 'dot') {
+  if (name === "dot") {
     return (
-      <svg className={`icon ${className}`.trim()} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <svg
+        className={`icon ${className}`.trim()}
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        focusable="false"
+      >
         <circle cx="12" cy="12" r="5" fill="currentColor" />
       </svg>
     );

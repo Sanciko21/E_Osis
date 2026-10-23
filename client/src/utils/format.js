@@ -19,6 +19,7 @@ const shortDateTimeFormatter = new Intl.DateTimeFormat(LOCALE, {
 });
 const timeFormatter = new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
 const clockFormatter = new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit' });
+const clockSecondsFormatter = new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 const numberFormatter = new Intl.NumberFormat(LOCALE);
 const percentFormatter = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 0, maximumFractionDigits: 1 });
 
@@ -29,6 +30,7 @@ export const formatDate = (value) => (valid(value) ? dateFormatter.format(new Da
 export const formatShortDateTime = (value) => (valid(value) ? shortDateTimeFormatter.format(new Date(value)) : '—');
 export const formatTime = (value) => (valid(value) ? timeFormatter.format(new Date(value)) : '—');
 export const formatClock = (value) => (valid(value) ? clockFormatter.format(new Date(value)) : '—');
+export const formatClockSeconds = (value) => (valid(value) ? clockSecondsFormatter.format(new Date(value)) : '—');
 export const formatNumber = (value) => (Number.isFinite(value) ? numberFormatter.format(value) : '—');
 export const formatPercent = (value) => (Number.isFinite(value) ? `${percentFormatter.format(value)}%` : '—');
 
