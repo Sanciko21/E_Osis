@@ -1,14 +1,14 @@
-import react from '@vitejs/plugin-react';
-import { defineConfig, loadEnv } from 'vite';
+import react from "@vitejs/plugin-react";
+import { defineConfig, loadEnv } from "vite";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, process.cwd(), "");
   // Saat pengembangan, /api dan /uploads diteruskan ke backend sehingga browser melihat
   // satu origin yang sama (cookie sesi admin SameSite=Strict tetap berfungsi).
-  const apiTarget = env.DEV_API_PROXY_TARGET || 'http://127.0.0.1:4000';
+  const apiTarget = env.DEV_API_PROXY_TARGET || "http://127.0.0.1:4000";
   const proxy = {
-    '/api': { target: apiTarget, changeOrigin: false },
-    '/uploads': { target: apiTarget, changeOrigin: false },
+    "/api": { target: apiTarget, changeOrigin: false },
+    "/uploads": { target: apiTarget, changeOrigin: false },
   };
 
   return {
@@ -20,16 +20,16 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            charts: ['chart.js', 'react-chartjs-2'],
-            motion: ['gsap', 'aos'],
+            charts: ["chart.js", "react-chartjs-2"],
+            motion: ["gsap", "aos"],
           },
         },
       },
     },
     test: {
-      environment: 'jsdom',
-      setupFiles: ['./src/test/setup.js'],
-      include: ['src/**/*.test.{js,jsx}'],
+      environment: "jsdom",
+      setupFiles: ["./src/test/setup.js"],
+      include: ["src/**/*.test.{js,jsx}"],
       css: false,
       clearMocks: true,
       restoreMocks: true,
