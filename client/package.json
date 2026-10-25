@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:rumahweb": "vite build --mode rumahweb && node scripts/prepare-rumahweb.js",
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest run",

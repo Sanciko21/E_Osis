@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { appConfig } from '../../config/appConfig.js';
+import { appConfig, publicUrl } from '../../config/appConfig.js';
 import { formatCandidateNumber, nameInitials } from '../../utils/election.js';
 
 /**
@@ -28,7 +28,7 @@ export default function CandidatePhoto({ candidate }) {
       {showPhoto ? (
         <img
           className="candidate-photo__subject candidate-photo__image"
-          src={candidate.photoUrl}
+          src={publicUrl(candidate.photoUrl)}
           alt={alt}
           loading="lazy"
           decoding="async"

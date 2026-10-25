@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { publicUrl } from '../../config/appConfig.js';
 import { candidateColor } from '../../utils/chartData.js';
 import { formatCandidateNumber, nameInitials as initials } from '../../utils/election.js';
 
@@ -21,7 +22,7 @@ export default function CandidateAvatar({ candidate, size = 'md', decorative = f
     >
       {showPhoto ? (
         <img
-          src={candidate.photoUrl}
+          src={publicUrl(candidate.photoUrl)}
           alt={alt}
           loading="lazy"
           decoding="async"

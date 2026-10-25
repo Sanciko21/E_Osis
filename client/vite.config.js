@@ -1,6 +1,12 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 
+/** "/E-Voting" → "/E-Voting/"; kosong → "/" (akar domain). */
+function normalizeBase(value) {
+  const trimmed = (value ?? "").trim().replace(/^\/+|\/+$/g, "");
+  return trimmed ? `/${trimmed}/` : "/";
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   // Saat pengembangan, /api dan /uploads diteruskan ke backend sehingga browser melihat
@@ -12,6 +18,9 @@ export default defineConfig(({ mode }) => {
   };
 
   return {
+    // Folder pemasangan. Build Rumahweb (mode "rumahweb") membaca BASE_PATH=/E-Voting/ dari
+    // .env.rumahweb; build lain (Vercel, lokal) tetap di akar domain.
+    base: normalizeBase(env.BASE_PATH),
     plugins: [react()],
     server: { port: 5173, strictPort: true, proxy },
     preview: { port: 4173, strictPort: true, proxy },

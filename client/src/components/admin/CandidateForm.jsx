@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { publicUrl } from '../../config/appConfig.js';
 import Icon from '../ui/Icon.jsx';
 
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
@@ -143,7 +144,7 @@ export default function CandidateForm({ candidate, nextNumber, onSubmit, onCance
         <legend className="field__label">Foto pasangan calon (opsional)</legend>
         <div className="photo-field__row">
           {(preview || candidate?.photoUrl) && (
-            <img className="photo-field__preview" src={preview ?? candidate.photoUrl} alt="Pratinjau foto pasangan calon" />
+            <img className="photo-field__preview" src={preview ?? publicUrl(candidate.photoUrl)} alt="Pratinjau foto pasangan calon" />
           )}
           <div className="photo-field__inputs">
             <label className="btn btn--secondary btn--sm file-button">

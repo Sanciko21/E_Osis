@@ -16,11 +16,82 @@ mengelola jadwal & pasangan calon dari dashboard, dan hasil dihitung langsung da
 | Hasil sementara hanya untuk admin | Endpoint publik menolak (`403 RESULTS_NOT_PUBLIC`) kecuali pemilihan **selesai** dan `results_public = true` |
 
 > Dokumentasi rinci: [`docs/API.md`](docs/API.md) · [`docs/DATABASE.md`](docs/DATABASE.md) ·
-> [`docs/KEAMANAN.md`](docs/KEAMANAN.md) · contoh Nginx: [`docs/deploy/nginx.conf.example`](docs/deploy/nginx.conf.example)
+> [`docs/KEAMANAN.md`](docs/KEAMANAN.md) · deploy: [Vercel + Supabase](docs/DEPLOY-SUPABASE-VERCEL.md) ·
+> [hosting cPanel Rumahweb](docs/DEPLOY-RUMAHWEB.md) · contoh Nginx: [`docs/deploy/nginx.conf.example`](docs/deploy/nginx.conf.example)
+
+---
+
+## Tampilan aplikasi
+
+> Tangkapan layar aplikasi asli dengan data demo (`server/sql/demo.sql` + `demo-votes.sql`:
+> 3 pasangan calon fiktif, 1.000 suara dummy).
+
+### Halaman siswa
+
+<p align="center">
+  <img src="docs/images/01-beranda.webp" alt="Beranda E-OSIS: hero 'Suaramu Menentukan Masa Depan OSIS' dengan status pemilihan sedang berlangsung dan tombol Pilih Pasangan Calon" width="100%">
+  <br><em>Beranda — status & jadwal pemilihan, tombol langsung ke kartu pasangan calon</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/02-pasangan-calon.webp" alt="Tiga kartu pasangan calon bernomor urut 01, 02, 03 berisi foto, nama, visi, tombol Pilih Paslon, dan tautan visi & misi lengkap" width="100%">
+  <br><em>Kartu pasangan calon — foto, nomor urut, nama, visi, dan tombol "Pilih Paslon"</em>
+</p>
+
+**Alur memilih (tanpa login, cukup NISN)**
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/03-dialog-nisn.webp" alt="Dialog Masukkan NISN-mu berisi pasangan calon nomor urut 02 dan kolom NISN 10 digit"></td>
+    <td width="50%"><img src="docs/images/04-konfirmasi.webp" alt="Dialog konfirmasi Yakin dengan pilihanmu? dengan tombol Kembali dan Ya, Saya Yakin"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>1. Masukkan NISN (10 digit, hanya angka)</em></td>
+    <td align="center"><em>2. Periksa kembali — pilihan tidak dapat diubah</em></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/05-berhasil.webp" alt="Dialog Suara berhasil disimpan! dengan tombol Selesai"></td>
+    <td align="center"><img src="docs/images/06-beranda-mobile.webp" alt="Beranda E-OSIS di layar ponsel" width="190"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>3. Suara tersimpan secara rahasia</em></td>
+    <td align="center"><em>Tampilan ponsel (responsif)</em></td>
+  </tr>
+</table>
+
+### Panel admin & hasil
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/07-login-admin.webp" alt="Halaman Masuk sebagai admin dengan kolom email dan kata sandi"></td>
+    <td width="50%"><img src="docs/images/10-kelola-pemilihan.webp" alt="Halaman Pemilihan & jadwal berisi pemilihan aktif dengan tombol Kandidat, Ubah, Tutup pemilihan, dan Publikasikan hasil"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Login panitia & pengawas</em></td>
+    <td align="center"><em>Kelola pemilihan, jadwal, kandidat, publikasi hasil</em></td>
+  </tr>
+</table>
+
+<p align="center">
+  <img src="docs/images/08-dashboard.webp" alt="Dashboard pemilihan: total suara sah 1.000, pemilih unik 1.000, partisipasi 80%, pemeriksaan integritas data, grafik batang dan donat perolehan suara" width="100%">
+  <br><em>Dashboard — hasil sementara (khusus admin), partisipasi, dan pemeriksaan integritas data</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/09-live-report.webp" alt="Live Report layar penuh: kartu tiga pasangan calon dengan jumlah suara dan persentase, partisipasi pemilih 80%, grafik perbandingan dan persentase suara" width="100%">
+  <br><em>Live Report (<code>/admin/live</code>) — untuk layar/proyektor, diperbarui otomatis setiap 5 detik</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/11-hasil.webp" alt="Halaman Hasil pemilihan publik: perolehan suara terbanyak, total suara, partisipasi, grafik, dan rincian perolehan suara" width="100%">
+  <br><em>Halaman Hasil publik — tampil hanya setelah pemilihan selesai dan dipublikasikan panitia</em>
+</p>
 
 ---
 
 ## Daftar isi
+
+- [Tampilan aplikasi](#tampilan-aplikasi)
 
 1. [Fitur](#1-fitur)
 2. [Arsitektur & struktur proyek](#2-arsitektur--struktur-proyek)
@@ -65,6 +136,9 @@ mengelola jadwal & pasangan calon dari dashboard, dan hasil dihitung langsung da
 - Dashboard: total suara sah, pemilih unik, partisipasi (hanya bila jumlah siswa resmi diisi),
   pemeriksaan integritas (jumlah suara = jumlah catatan partisipasi), grafik batang, donat, garis
   partisipasi, meter partisipasi, tabel hasil, pembaruan otomatis yang menahan tampilan lama saat memuat.
+- **Live Report (`/admin/live`)** — tampilan layar penuh untuk proyektor saat penghitungan: foto &
+  rincian suara tiap pasangan calon, peringkat & selisih, partisipasi pemilih, grafik perbandingan dan
+  persentase suara; diperbarui otomatis setiap 5 detik (hanya untuk admin yang login).
 - Manajemen pemilihan & jadwal (draft → terjadwal → aktif → selesai), CRUD pasangan calon (unggah foto
   aman), pengaturan publikasi hasil, audit log aktivitas admin dengan filter & pagination.
 
@@ -545,6 +619,10 @@ endpoint pencarian pilihan berdasarkan NISN. Kebijakan retensi yang disarankan a
 **Vercel + Supabase (tanpa server sendiri):** frontend di Vercel, API Express yang sama dijalankan
 sebagai Supabase Edge Function, database & foto di Supabase. Panduan langkah demi langkah:
 [`docs/DEPLOY-SUPABASE-VERCEL.md`](docs/DEPLOY-SUPABASE-VERCEL.md).
+
+**Hosting cPanel (mis. Rumahweb) di subfolder seperti `/E-Voting/`:** file statis hasil
+`npm run build:rumahweb` di `public_html`, API tetap di Supabase Edge Function melalui proxy PHP kecil
+(satu origin → cookie sesi admin berfungsi). Panduan: [`docs/DEPLOY-RUMAHWEB.md`](docs/DEPLOY-RUMAHWEB.md).
 
 **Server sendiri (VPS/sekolah):**
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router';
 import Logo from '../components/brand/Logo.jsx';
 import Icon from '../components/ui/Icon.jsx';
+import { publicUrl } from '../config/appConfig.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { ROLE_LABELS } from '../utils/election.js';
 
@@ -72,7 +73,7 @@ export default function AdminLayout() {
               {item.label}
             </NavLink>
           ))}
-          <a href="/" className="admin-nav__link" target="_blank" rel="noopener noreferrer">
+          <a href={publicUrl('/')} className="admin-nav__link" target="_blank" rel="noopener noreferrer">
             <Icon name="home" size={20} />
             Situs publik
             <span className="sr-only"> (tab baru)</span>
